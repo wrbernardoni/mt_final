@@ -21,6 +21,8 @@ int main(int argc, char** argv)
     return 1;
   }
 
+  cout << "Generating elastic map.\n";
+  cout.flush();
   ElasticMap map;
 
   cout << "Training elastic map.\n";
