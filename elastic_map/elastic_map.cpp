@@ -1,6 +1,7 @@
 #include "loadTraining.h"
 #include "map_class.h"
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -26,30 +27,24 @@ int main(int argc, char** argv)
 
   cout << "Generating elastic map.\n";
   cout.flush();
-  double min = 0.0;
-  double max = 0.0;
+  double sumV = 0.0;
   for (int i = 0; i < data.size(); i++)
   {
   	for (int j = 0; j < data[i].sVec.size(); j++)
   	{
-  		if (data[i].sVec[j] < min)
-  			min = data[i].sVec[j];
-
-  		if (data[i].sVec[j] > max)
-  			max = data[i].sVec[j];
+  		sumV += data[i].sVec[j] * data[i].sVec[j];
   	}
 
-  	for (int j = 0; j < data[i].sVec.size(); j++)
+  	for (int j = 0; j < data[i].tVec.size(); j++)
   	{
-  		if (data[i].tVec[j] < min)
-  			min = data[i].tVec[j];
-
-  		if (data[i].tVec[j] > max)
-  			max = data[i].tVec[j];
+  		sumV += data[i].tVec[j] * data[i].tVec[j];
   	}
   }
 
-  ElasticMap map(DIMENSIONS, NUM_NODES, min, max);
+  sumV = sumV / ((double)(2 * data.size() * 100));
+  sumV = sqrt(sumV);
+
+  ElasticMap map(DIMENSIONS, NUM_NODES, sumV);
 
   cout << "Training elastic map.\n";
   cout.flush();
