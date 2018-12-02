@@ -1,6 +1,7 @@
 #include "map_class.h"
 #include <iostream>
 #include <cmath>
+#include <list>
 
 #define MIN(a,b) (a<b?a:b)
 
@@ -91,9 +92,9 @@ ElasticMap::ElasticMap(unsigned int dim, unsigned int nn, double sdev)
 		nodes.push_back(newN);
 	}
 
-	cout << "Creating " << (int)(pow(10, (log(nodes.size()) / 3)) + 3) << " node clusters" << endl;
+	cout << "Creating " << (int)(pow(10.0, (log10(nodes.size()) / 1.5)) + 3) << " node clusters" << endl;
 	uniform_int_distribution<int> choice(0, nodes.size());
-	for(int i = 0; i < (pow(10, (log(nodes.size()) / 3)) + 1); i++)
+	for(int i = 0; i < (pow(10.0, (log10(nodes.size()) / 1.5)) + 1); i++)
 	{
 		Cluster c;
 		c.dead = false;
@@ -212,11 +213,116 @@ double computePb(vector<rib> in)
 	return 0.5 * s;
 }
 
+vector<band> constructLattice(vector<EM_Node>* nodes, vector<Cluster>* kmns)
+{
+	vector<band> lattice;
+
+	for (int k = 0; k < kmns->size(); k++)
+	{
+		cout << "\tConstructing Lattice: " << (double)k / kmns->size() << "\r";
+		if (k % 50 == 0)
+			cout.flush();
+
+		if ((*kmns)[k].dead)
+			continue;
+
+
+		list<EM_Node*> added;
+		list<EM_Node*> remaining;
+		added.push_back((*kmns)[k].nodes[0]);
+		for (int i = 1; i < (*kmns)[k].nodes.size(); i++)
+		{
+			remaining.push_back((*kmns)[k].nodes[i]);
+		}
+
+		while (remaining.size() > 0)
+		{
+			double mind = -1.0;
+			EM_Node* n = NULL;
+			EM_Node* s = NULL;
+			for (list<EM_Node*>::iterator it=remaining.begin(); it != remaining.end(); it++)
+			{
+				for (list<EM_Node*>::iterator it2=added.begin(); it2 != added.end(); it2++)
+				{
+					double d = eDist((*it)->i, (*it2)->i);
+					if (d < mind || mind < 0)
+					{
+						n = *it;
+						s = *it2;
+					}
+				}
+			}
+
+			remaining.remove(n);
+			band b;
+			b.a = s;
+			b.b = n;
+			lattice.push_back(b);
+		}
+
+		for (int i = 0; i < (*kmns)[k].nodes.size(); i++)
+		{
+			for (int j = i + 1; j < (*kmns)[k].nodes.size(); j++)
+			{
+				band b;
+				b.a = (*kmns)[k].nodes[i];
+				b.b = (*kmns)[k].nodes[j];
+
+				lattice.push_back(b);
+			}
+		}
+
+		for (int l = k + 1; l < kmns->size(); l++)
+		{
+			if ((*kmns)[l].dead)
+				continue;
+
+			int i_k = 0;
+			int i_l = 0;
+			double i_k_l = -1.0;
+
+			for (int i = 0; i < (*kmns)[k].nodes.size(); i++)
+			{
+				double mind = -1.0;
+				int minj = -1;
+				for (int j = 0; j < (*kmns)[l].nodes.size(); j++)
+				{
+					double d = eDist((*kmns)[k].nodes[i]->i, (*kmns)[l].nodes[j]->i);
+					if (d < mind || minj == -1)
+					{
+						mind = d;
+						minj = j;
+					}
+				}
+
+				if (mind < i_k_l || i_k_l < 0.0)
+				{
+					i_k_l = mind;
+					i_k = i;
+					i_l = minj;
+				}
+			}
+
+			band b;
+			b.a = (*kmns)[k].nodes[i_k];
+			b.b = (*kmns)[l].nodes[i_l];
+			lattice.push_back(b);
+		}
+	}
+
+	cout << "\tConstructing Lattice: 1                  " << endl;
+
+	return lattice;
+}
+
 void ElasticMap::train(vector<dat> data)
 {
+	unsigned long maxIT = 1000;
 	double lr = 0.00001;
 	double bendingCoefficient = 1.0;
-	double stretchCoefficient = 0.5;
+	double stretchCoefficient = 1.0;
+	double sr = 1.0;
+	double br = 1.0;
 	vector<datToNode> sSet;
 	for (int i = 0; i < data.size(); i++)
 	{
@@ -248,18 +354,12 @@ void ElasticMap::train(vector<dat> data)
 
 	cout << "bS " << bSet.size() << endl;
 
-	//Todo: make lattice instead of random.
-	vector<band> eSet;
-	for (int i = 0; i < nodes.size(); i++)
-	{
-		band b;
-		b.a = &nodes[i];
-		b.b = &nodes[uin(rng)];
-
-		eSet.push_back(b);
-	}
+	vector<band> eSet = constructLattice(&nodes, &k_means);
 
 	cout << "eS " << eSet.size() << endl;
+
+	br = (double)sSet.size() / (2.0 * (double)bSet.size());
+	sr = (double)sSet.size() / (2.0 * (double)eSet.size());
 
 
 	cout << "Ps: " << computePs(sSet) << endl;
@@ -267,8 +367,10 @@ void ElasticMap::train(vector<dat> data)
 	cout << "Pb: " << bendingCoefficient * computePb(bSet) << endl;
 	double delta = -1.0;
 	unsigned long it = 0;
-	while (it < 1000 && (delta > 1.0 || delta < 0.0))
+	while (it < maxIT && (delta > 1.0 || delta < 0.0))
 	{
+		bendingCoefficient = br * (1.0 - sqrt((double)it / maxIT));
+		stretchCoefficient = sr * (1.0 - sqrt((double)it / maxIT));
 		delta = 0.0;
 
 		cout << "Resetting error." << endl;
@@ -326,6 +428,7 @@ void ElasticMap::train(vector<dat> data)
 		double Pe = stretchCoefficient * computePe(eSet);
 		double Pb = bendingCoefficient * computePb(bSet);
 		cout << "\n[" << it << "] -- delta: " << delta << " / 1.0"<< endl;
+		cout << "sc: " << stretchCoefficient << " bc: " << bendingCoefficient << endl;
 		cout << "\tP: " << Ps + Pe + Pb << endl;
 		cout << "\tPs: " << Ps << endl;
 		cout << "\tPe: " << Pe << endl;
