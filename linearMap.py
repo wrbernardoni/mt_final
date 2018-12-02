@@ -31,6 +31,10 @@ def getMatrix(filename):
 
 		while i < len(line):
 
+			#Error checks the line size
+			if i > 203:
+				raise ValueError("File not formatted correctly!")
+
 			#Switchs to L2 once delim is found
 			if line[i] == '|||':
 				delim = True
@@ -42,7 +46,8 @@ def getMatrix(filename):
 				l2Vec.append(float(line[i]))
 			#Error checking
 			else:
-				raise ValueError
+				raise ValueError("File not formatted correctly!")
+			
 			i += 1
 
 		#Adds the list of 100 points to the LArrs
@@ -100,12 +105,9 @@ def rotation(H):
 	R = np.matmul(np.matmul(V, Id), uT)
 	return R
 
-def returnRes(L1, L2, R, t):
+def returnRes(L1, L2, R, lang):
 	i = 0
-	if t == "Train":
-		out = open('trainOutput.txt', 'w')
-	elif t == "Test":
-		out = open('testOutput.txt', 'w')
+	out = open(lang+'LO.txt', 'w')
 	for word in L1:
 		print(word, L2[i], *R[i], file=out)
 		i += 1
@@ -113,13 +115,21 @@ def returnRes(L1, L2, R, t):
 def main():
 	#Takes in command line arguments
 	ap = argparse.ArgumentParser()
-	ap.add_argument('--src_lang', default='bg')
-	ap.add_argument('--tgt_lang', default='en')
+	ap.add_argument('--src_lang', default='en')
+	ap.add_argument('--tgt_lang')
 	ap.add_argument('--train_file', default='data/bg-en.train')
 	ap.add_argument('--test_file', default='data/bg-en.test')
 	ap.add_argument('--out_file', default='out.txt')
 
 	args = ap.parse_args()
+
+	#Ensures target language specified
+	if args.tgt_lang is None:
+		raise ValueError("Target language required!")
+
+	#Ensures that the target language is the same as the train/test files
+	if args.tgt_lang not in args.train_file and args.tgt_lang not in args.test_file:
+		raise ValueError("Target language must be same as train and test file languages")
 
 	#Returns the matrices P and Q as well as 
 	#a list of words corresponding to index
@@ -129,20 +139,16 @@ def main():
 
 	#Computes the covariance matrix H given P and Q
 	hTrain = getH(l1Train[1], l2Train[1])
-	hTest = getH(l1Test[1], l2Test[1])
 
 	#Computes the rotation matrix given H
 	rTrain = rotation(hTrain)
-	rTest = rotation(hTest)
 
 	#Multiplies L1 by Rotation
-	rotL1Train = np.matmul(l1Train[1], rTrain)
-	rotL1Test = np.matmul(l1Test[1], rTest)
+	rotL1Test = np.matmul(l1Test[1], rTrain)
 
 	#Prints Results
-	returnRes(l1Train[0], l2Train[0], rotL1Train, "Train")
-	returnRes(l1Test[0], l2Test[0], rotL1Test, "Test")
-
+	returnRes(l1Test[0], l2Test[0], rotL1Test, args.tgt_lang)
+	
 if __name__ == '__main__':
     main()
 
