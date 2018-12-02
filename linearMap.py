@@ -98,9 +98,17 @@ def rotation(H):
 	Id = np.identity(V.shape[1], dtype=float)
 	Id[-1][-1] = d
 	R = np.matmul(np.matmul(V, Id), uT)
-
 	return R
 
+def returnRes(L1, L2, R, t):
+	i = 0
+	if t == "Train":
+		out = open('trainOutput.txt', 'w')
+	elif t == "Test":
+		out = open('testOutput.txt', 'w')
+	for word in L1:
+		print(word, L2[i], *R[i], file=out)
+		i += 1
 
 def main():
 	#Takes in command line arguments
@@ -126,6 +134,12 @@ def main():
 	#Computes the rotation matrix given H
 	rTrain = rotation(hTrain)
 	rTest = rotation(hTest)
+
+	rotL1Train = np.matmul(l1Train[1], rTrain)
+	rotL1Test = np.matmul(l1Test[1], rTest)
+
+	returnRes(l1Train[0], l2Train[0], rotL1Train, "Train")
+	returnRes(l1Test[0], l2Test[0], rotL1Test, "Test")
 
 if __name__ == '__main__':
     main()
