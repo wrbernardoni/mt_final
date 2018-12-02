@@ -95,8 +95,9 @@ def rotation(H):
 	#matrix to ensure a right-handed coordinate system
 	d = np.linalg.det(np.matmul(V,uT))
 	#print(d)
-	I = np.identity(V.shape[1])
-	R = np.matmul(np.matmul(V, I), uT)
+	Id = np.identity(V.shape[1], dtype=float)
+	Id[-1][-1] = d
+	R = np.matmul(np.matmul(V, Id), uT)
 
 	return R
 
