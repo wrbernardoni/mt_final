@@ -2,6 +2,8 @@ import argparse
 import numpy as np
 from io import open
 
+#returns the matrices P and Q 
+#as well as the lists of corresponding words
 def getMatrix(filename):
 	#LWords contains the ordering of the words
 	l1Words = []
@@ -63,11 +65,21 @@ def getMatrix(filename):
 	#LMatrices by their centroid
 	l1Subtract = np.full((1,100), l1Cen)
 	l2Subtract = np.full((1,100), l2Cen)
-	
+
+	#Subtracts the centroid from each point
 	l1M = np.subtract(l1M, l1Subtract)
 	l2M = np.subtract(l2M, l2Subtract)
 
 	return (l1Words, l1M), (l2Words, l2M)
+
+#Computation of the covariance matrix
+def getH(P, Q):
+	#P and Q is dimension 4680x100
+	#pT is 100x4680
+	#H is 100x100
+	pT = np.transpose(P)
+	H = np.matmul(pT, Q)
+	return H
 
 def main():
 	ap = argparse.ArgumentParser()
@@ -81,6 +93,9 @@ def main():
 
 	l1Train, l2Train = getMatrix(args.train_file)
 	l1Test, l2Test = getMatrix(args.test_file)
+
+	hTrain = getH(l1Train[1], l2Train[1])
+	hTest = getH(l1Test[1], l2Test[1])
 
 if __name__ == '__main__':
     main()
