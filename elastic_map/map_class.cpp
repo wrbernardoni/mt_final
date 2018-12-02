@@ -119,7 +119,7 @@ ElasticMap::ElasticMap(unsigned int dim, unsigned int nn, double sdev, vector<da
 
 	for (int i = 0; i < nodes.size(); i++)
 	{
-		cout << "\tAllocating Clusters: " << (double)i / nodes.size() << "\r";
+		cout << "\tAllocating Clusters: " << (double)i / nodes.size() << "            \r";
 		if (i % 100 == 0)
 			cout.flush();
 
@@ -142,7 +142,7 @@ ElasticMap::ElasticMap(unsigned int dim, unsigned int nn, double sdev, vector<da
 
 	for (int i = 0; i < k_means.size(); i++)
 	{
-		cout << "\tRecomputing Centroids: " << (double)i / k_means.size() << "\r";
+		cout << "\tRecomputing Centroids: " << (double)i / k_means.size() << "            \r";
 		if (i % 100 == 0)
 			cout.flush();
 		if (k_means[i].nodes.size() == 0)
@@ -230,8 +230,8 @@ vector<band> constructLattice(vector<EM_Node>* nodes, vector<Cluster>* kmns)
 
 	for (int k = 0; k < kmns->size(); k++)
 	{
-		cout << "\tConstructing Lattice: " << (double)k / kmns->size() << "\r";
-		if (k % 50 == 0)
+		cout << "\tConstructing Lattice: " << (double)k / kmns->size() << "                     \r";
+		if (k % 15 == 0)
 			cout.flush();
 
 		if ((*kmns)[k].dead)
@@ -329,7 +329,7 @@ vector<band> constructLattice(vector<EM_Node>* nodes, vector<Cluster>* kmns)
 void ElasticMap::train(vector<dat> data)
 {
 	unsigned long maxIT = 1000;
-	double lr = 0.001;
+	double lr = 0.0001;
 	double bendingCoefficient = 1.0;
 	double stretchCoefficient = 1.0;
 	double sr = 1.0;
@@ -380,8 +380,8 @@ void ElasticMap::train(vector<dat> data)
 
 	cout << "eS " << eSet.size() << endl;
 
-	br = 1.0;//(double)sSet.size() / (4.0 * (double)bSet.size());
-	sr = (double)sSet.size() / (2.0 * (double)eSet.size());
+	br = 0.1;//(double)sSet.size() / (4.0 * (double)bSet.size());
+	sr = 0.1;//(double)sSet.size() / (2.0 * (double)eSet.size());
 
 
 	cout << "Ps: " << computePs(sSet) << endl;
