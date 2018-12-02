@@ -2,25 +2,20 @@ import argparse
 import numpy as np
 from io import open
 
-def hello(h, t):
-	return 77.9
-
 def getMatrix(filename):
-	#l1M = np.array()
-	#l2M = np.array()
 	l1Words = []
 	l2Words = []
 	rawdata = open(filename, 'r')
-	l1Vec = []
-	l2Vec = []
-
+	l1Arr = []
+	l2Arr = []
 	for line in rawdata:
 		line = line.split()
 		l1Words.append(line[0])
 		l2Words.append(line[1])
 		i = 2
 		delim = False
-		print(line, "\n\n\n\n\n")
+		l1Vec = []
+		l2Vec = []
 		while i < len(line):
 			if line[i] == '|||':
 				delim = True
@@ -29,14 +24,16 @@ def getMatrix(filename):
 			elif delim == True:
 				l2Vec.append(float(line[i]))
 			else:
-				print("PROBLEM")
+				raise ValueError
 			i += 1
-		print(l1Vec,'\n\n', len(l1Vec), l1Words, l2Words)
-		print(l2Vec, len(l2Vec))
-		hello(1)
+		l1Arr.append(l1Vec)
+		l2Arr.append(l2Vec)
+	l1Arr = tuple(l1Arr)
+	l2Arr = tuple(l2Arr)
+	l1M = np.vstack(l1Arr)
+	l2M = np.vstack(l2Arr)
 
-
-	return 1
+	return (l1Words, l1M), (l2Words, l2M)
 
 def main():
 	ap = argparse.ArgumentParser()
@@ -48,8 +45,8 @@ def main():
 
 	args = ap.parse_args()
 
-	trainMatrix = getMatrix(args.train_file)
-	testMatrix = getMatrix(args.test_file)
+	l1, l2 = getMatrix(args.train_file)
+	l1, l2 = getMatrix(args.test_file)
 
 if __name__ == '__main__':
     main()
