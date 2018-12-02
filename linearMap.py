@@ -74,14 +74,35 @@ def getMatrix(filename):
 
 #Computation of the covariance matrix
 def getH(P, Q):
-	#P and Q is dimension 4680x100
-	#pT is 100x4680
+	#P and Q is dimension Nx100
+	#pT is 100xN
 	#H is 100x100
+
 	pT = np.transpose(P)
 	H = np.matmul(pT, Q)
+
 	return H
 
+#Computes optimal rotation matrix using SVD
+def rotation(H):
+	U, S, vT = np.linalg.svd(H)
+	V = np.transpose(vT)
+	uT = np.transpose(U)
+
+	#not sure what the det is used for yet
+	#from Wikipedia:
+	#decide whether we need to correct our rotation 
+	#matrix to ensure a right-handed coordinate system
+	d = np.linalg.det(np.matmul(V,uT))
+	#print(d)
+	I = np.identity(V.shape[1])
+	R = np.matmul(np.matmul(V, I), uT)
+
+	return R
+
+
 def main():
+	#Takes in command line arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument('--src_lang', default='bg')
 	ap.add_argument('--tgt_lang', default='en')
@@ -91,11 +112,19 @@ def main():
 
 	args = ap.parse_args()
 
+	#Returns the matrices P and Q as well as 
+	#a list of words corresponding to index
+	#given the train and test files
 	l1Train, l2Train = getMatrix(args.train_file)
 	l1Test, l2Test = getMatrix(args.test_file)
 
+	#Computes the covariance matrix H given P and Q
 	hTrain = getH(l1Train[1], l2Train[1])
 	hTest = getH(l1Test[1], l2Test[1])
+
+	#Computes the rotation matrix given H
+	rTrain = rotation(hTrain)
+	rTest = rotation(hTest)
 
 if __name__ == '__main__':
     main()
