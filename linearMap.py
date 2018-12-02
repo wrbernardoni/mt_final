@@ -135,9 +135,11 @@ def main():
 	rTrain = rotation(hTrain)
 	rTest = rotation(hTest)
 
+	#Multiplies L1 by Rotation
 	rotL1Train = np.matmul(l1Train[1], rTrain)
 	rotL1Test = np.matmul(l1Test[1], rTest)
 
+	#Prints Results
 	returnRes(l1Train[0], l2Train[0], rotL1Train, "Train")
 	returnRes(l1Test[0], l2Test[0], rotL1Test, "Test")
 
