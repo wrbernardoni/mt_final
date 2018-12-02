@@ -28,7 +28,7 @@ private:
 	Cluster* getCCluster(vector<double>);
 	EM_Node* getCNode(vector<double>);
 public:
-	ElasticMap(unsigned int, unsigned int, double);
+	ElasticMap(unsigned int, unsigned int, double, vector<dat>);
 	void train(vector<dat>);
 	vector<oDat> output(vector<iDat>);
 };

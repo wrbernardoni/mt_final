@@ -73,12 +73,23 @@ vector<double> ElasticMap::getOut(vector<double> in)
 	return getCNode(in)->o;
 }
 
-ElasticMap::ElasticMap(unsigned int dim, unsigned int nn, double sdev)
+ElasticMap::ElasticMap(unsigned int dim, unsigned int nn, double sdev, vector<dat> data)
 {
 	normal_distribution<double> unif(0, sdev);
 
 	cout << "Generating " << nn << " nodes" << endl;
-	for (int i = 0; i < nn; i++)
+	for(int i = 0; i < data.size(); i++)
+	{
+		EM_Node newN;
+		for (int j = 0; j < dim; j++)
+		{
+			newN.i.push_back(data[i].sVec[j]);
+			newN.o.push_back(data[i].sVec[j]);
+			newN.e.push_back(0);
+		}
+		nodes.push_back(newN);
+	}
+	for (int i = nodes.size(); i < nn; i++)
 	{
 		EM_Node newN;
 		for (int j = 0; j < dim; j++)
@@ -318,7 +329,7 @@ vector<band> constructLattice(vector<EM_Node>* nodes, vector<Cluster>* kmns)
 void ElasticMap::train(vector<dat> data)
 {
 	unsigned long maxIT = 1000;
-	double lr = 0.00001;
+	double lr = 0.001;
 	double bendingCoefficient = 1.0;
 	double stretchCoefficient = 1.0;
 	double sr = 1.0;
@@ -339,15 +350,26 @@ void ElasticMap::train(vector<dat> data)
 	cout << "sS " << sSet.size() << endl; 
 
 	uniform_int_distribution<int> uin(0, nodes.size() - 1);
-	int numRibs = (uin(rng) + 1)/ 3;
+	int numRibs = (nodes.size())/ 30;
 
 	vector<rib> bSet;
 	for (int i = 0; i < numRibs; i++)
 	{
 		rib r;
-		r.a = &nodes[uin(rng)];
-		r.b = &nodes[uin(rng)];
-		r.c = &nodes[uin(rng)];
+		int a = uin(rng);
+		int b = uin(rng);
+
+		r.a = &nodes[a];
+		r.c = &nodes[b];
+
+		vector<double> t;
+		for (int i = 0; i < r.a->i.size(); i++)
+		{
+			double tmp = (r.a->i[i] + r.c->i[i])/2.0;
+		}
+
+		r.b = getCNode(t);
+		
 
 		bSet.push_back(r);
 	}
@@ -358,7 +380,7 @@ void ElasticMap::train(vector<dat> data)
 
 	cout << "eS " << eSet.size() << endl;
 
-	br = (double)sSet.size() / (2.0 * (double)bSet.size());
+	br = 1.0;//(double)sSet.size() / (4.0 * (double)bSet.size());
 	sr = (double)sSet.size() / (2.0 * (double)eSet.size());
 
 

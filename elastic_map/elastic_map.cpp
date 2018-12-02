@@ -6,7 +6,7 @@
 using namespace std;
 
 #define DIMENSIONS 100
-#define NUM_NODES 10000
+#define NUM_NODES 100000
 
 int main(int argc, char** argv)
 {
@@ -44,7 +44,7 @@ int main(int argc, char** argv)
   sumV = sumV / ((double)(2 * data.size() * 100));
   sumV = sqrt(sumV);
 
-  ElasticMap map(DIMENSIONS, NUM_NODES, sumV);
+  ElasticMap map(DIMENSIONS, NUM_NODES, sumV, data);
 
   cout << "Training elastic map.\n";
   cout.flush();
