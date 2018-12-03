@@ -33,39 +33,35 @@ def getMatrix(filename):
 		#the delimeter, then the 100 dimensions of the target word vector
 		line = line.split()
 
+		#Error checks the line size
+		if len(line) != 203:
+			raise ValueError("File not formatted correctly!")
+
 		#Adds the words to L1Words and L2Words
 		l1Words.append(line[0])
 		l2Words.append(line[1])
 
-		i = 2
+		#Removes the words so all that is left is vector data (and delim)
+		vecData = line[2:]
+
 		delim = False
 
 		#The LVectors will contain the 100 dimensions of the word vector
 		l1Vec = []
 		l2Vec = []
 
-		#Iterates through the rest of the list to add each dimension 
-		#to its corresponding vector
-		while i < len(line):
-
-			#Error checks the line size
-			if i > 203:
-				raise ValueError("File not formatted correctly!")
-
+		#Iterates through the vector data to add 
+		#each dimension to its corresponding vector
+		for dim in vecData:
 			#Switchs to L2 once delim is found
-			if line[i] == '|||':
+			if dim == '|||':
 				delim = True
 			#Adds the next value to the l1Vector of 100 poins
 			elif delim == False:
-				l1Vec.append(float(line[i]))
+				l1Vec.append(float(dim))
 			#Adds the next value to the l2Vector of 100 poins
 			elif delim == True:
-				l2Vec.append(float(line[i]))
-			#Error checking
-			else:
-				raise ValueError("File not formatted correctly!")
-			
-			i += 1
+				l2Vec.append(float(dim))
 
 		#Adds the list of 100 points to the LArrs
 		l1Arr.append(l1Vec)
@@ -206,4 +202,3 @@ def main():
 	
 if __name__ == '__main__':
     main()
-
