@@ -162,8 +162,12 @@ def main():
     plt.plot(train_losses)
     plt.plot(test_losses)
 
-    print(torch.Tensor(test_losses[-20:]).mean().item(), 
-        torch.Tensor(test_losses[-20:]).std().item())
+    #print("TOTAL SQUARED LOSS: ", torch.Tensor(test_losses[-20:]).mean().item(),
+    #    "MEAN SQUARED LOSS: ", torch.Tensor(test_losses[-20:]).mean().item() / len(train_loader.dataset),
+    #    "STANDARD DEVIATION: ", torch.Tensor(test_losses[-20:]).std().item())
+    print("TOTAL SQUARED LOSS: ", torch.Tensor(test_losses[-20:]).mean().item())
+    print("MEAN SQUARED LOSS: ", torch.Tensor(test_losses[-20:]).mean().item() / len(train_loader.dataset))
+    print("STANDARD DEVIATION: ", torch.Tensor(test_losses[-20:]).std().item())
     plt.savefig(args.save_filename + ".png")
 
 

@@ -1,0 +1,10 @@
+Net(
+  (model): Sequential(
+    (0): Linear(in_features=100, out_features=64, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=64, out_features=100, bias=True)
+  )
+)
+TOTAL SQUARED LOSS:  121167.0625
+MEAN SQUARED LOSS:  25.133180356772453
+STANDARD DEVIATION:  334.00579833984375
