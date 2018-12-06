@@ -6,7 +6,7 @@
 using namespace std;
 
 #define DIMENSIONS 100
-#define NUM_NODES 100000
+#define NUM_NODES 10000
 
 int main(int argc, char** argv)
 {
