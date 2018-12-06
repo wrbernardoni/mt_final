@@ -487,7 +487,7 @@ void ElasticMap::train(vector<dat> data)
 		{
 			for (int j = 0; j < sSet[i].n->e.size(); j++)
 			{
-				sSet[i].n->e[j] += sSet[i].d.tVec[j] - sSet[i].n->o[j];
+				sSet[i].n->e[j] = sSet[i].d.tVec[j] - sSet[i].n->o[j];
 			}
 		}
 
