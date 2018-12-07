@@ -1,0 +1,7 @@
+We ran our models against five different languages -- Hungarian, Estonian, Bulgarian, Latvian, and Polish. 
+
+In terms of total squared error and mean squared error, our Elastic Map implementation performed around 3 times better than the linear orthogonal baseline that we implemented. This aligns with our thinking that languages are not mapped to each other in a linearly organized way, and so having a non-linear design as we did in this project should be an area explored for further research. 
+
+In terms of the standard deviation of the Mean Squared Error, both the linear and the Elastic Map had consistent values amongst the 5 languages, but again the Elastic Map outperformed the Linear model by having values that were around half tha of the Linear model's stadard deviations. 
+
+When we compare the results of our Elastic Map model to that of the neural model in terms of total square error and mean square error, we find that the neural model performed around 20-25% better across the board. However, the standard deviation of the neural model's standard deviation is much less consistent and was at times much worse than that of the Elastic Map.
