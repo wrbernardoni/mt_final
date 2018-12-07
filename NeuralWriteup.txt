@@ -1,0 +1,9 @@
+Neural Model
+
+Due to the prevalence of neural networks, we elected to use one to compare the results gathered from our linear and elastic map models.
+Similar to previous homeworks, the model was written in PyTorch for ease of use. The model that gathered the greatest results was simply a single linear layer with an added L2 regularization term.
+Multiple other models were written and tested which included more layers, but none performed better than the single layer network. All models ran for 100 epochs, and used the PyTorch implemented ADAM optimizer.
+Mean squared loss was used to be consistent with the other methods tested, which is also provided by PyTorch.
+The error reported is the average of the losses of the last 20 epochs ran, which is to ensure there aren't blatant outliers from poor performance in the beginning.
+The L2 regularization was only applied to the loss used to train the model, not the mean squared error outputted.
+Graphs such as the following were generated each run to illustrate the mean squared error over time.
