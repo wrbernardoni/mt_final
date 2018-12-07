@@ -63,6 +63,22 @@ vector<oDat> loadEval(string fn)
   return data;
 }
 
+vector<iDat> loadTest(string fn)
+{
+  vector<iDat> data;
+  vector<dat> all = loadTraining(fn);
+  for (int i = 0; i < all.size(); i++)
+  {
+    iDat t;
+    t.s = all[i].s;
+    t.t = all[i].t;
+    t.iVec = all[i].sVec;
+    data.push_back(t);
+  }
+
+  return data;
+}
+
 void outputEval(vector<oDat> data, string fn)
 {
   ofstream out(fn);
